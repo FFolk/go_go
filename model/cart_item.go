@@ -12,6 +12,9 @@ type CartItem struct {
 	Quantity   int          `gorm:"column:quantity;type:int(11);NOT NULL"`
 	CreatedAt  sql.NullTime `gorm:"column:created_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 	UpdatedAt  sql.NullTime `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP"`
+	// CartsID		Cart    	`gorm:"foreignKey:CartID"`
+	ProductsID	Product     `gorm:"foreignKey:ProductID"`
+	
 }
 
 func (m *CartItem) TableName() string {

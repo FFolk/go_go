@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"go_go/dto"
 	"go_go/model"
+	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -25,15 +25,48 @@ func CartController(route *gin.Engine, db *gorm.DB) {
 
 func getCartbycustomer_id(c *gin.Context) {
 	id := c.Param("id")
-	idx, err := strconv.Atoi(id)
+	customerID, err := strconv.Atoi(id)
 	if err != nil {
 		panic(err)
 	}
-	cart := []model.Cart{}
-	cart_db.Where("customer_id = ?", idx).Find(&cart)
-	cart_dto := []dto.Cart{}
-	copier.Copy(&cart_dto, &cart)
-	c.JSON(200, cart_dto)
+
+	customer := model.Customer{}
+	cart_db.First(&customer, customerID)
+
+	carts := []model.Cart{}
+	cart_db.Where("customer_id = ?", customerID).Find(&carts)
+
+	r_carts := []dto.R_Cart{}
+	for _, cart := range carts {
+		cartItems := []model.CartItem{}
+		cart_db.Where("cart_id = ?", cart.CartID).Find(&cartItems)
+
+		cartItemWithProducts := []dto.CartItemWithProduct{}
+		for _, cartItem := range cartItems {
+			product := model.Product{}
+			cart_db.First(&product, cartItem.ProductID)
+			itemTotal, _ := strconv.ParseFloat(product.Price, 64)
+			cartItemWithProducts = append(cartItemWithProducts, dto.CartItemWithProduct{
+				CartItemID:  cartItem.CartItemID,
+				ProductID:   cartItem.ProductID,
+				ProductName: product.ProductName,
+				Description: product.Description,
+				Price:       product.Price,
+				Quantity:    cartItem.Quantity,
+				ItemTotal:   itemTotal * float64(cartItem.Quantity),
+			})
+		}
+
+		r_carts = append(r_carts, dto.R_Cart{
+			CartID:     cart.CartID,
+			CustomerID: cart.CustomerID,
+			CartName:   cart.CartName,
+			CreatedAt:  cart.CreatedAt.Time,
+			UpdatedAt:  cart.UpdatedAt.Time,
+			CartItem:   cartItemWithProducts,
+		})
+	}
+	c.JSON(http.StatusOK, r_carts)
 }
 
 func addCart(c *gin.Context) {

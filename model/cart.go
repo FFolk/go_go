@@ -11,6 +11,8 @@ type Cart struct {
 	CartName   string       `gorm:"column:cart_name;type:varchar(255)"`
 	CreatedAt  sql.NullTime `gorm:"column:created_at;type:timestamp;default:CURRENT_TIMESTAMP"`
 	UpdatedAt  sql.NullTime `gorm:"column:updated_at;type:timestamp;default:CURRENT_TIMESTAMP"`
+	CartItems  []CartItem `gorm:"foreignKey:CartID"`
+	
 }
 
 func (m *Cart) TableName() string {
