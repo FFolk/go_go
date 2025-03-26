@@ -31,5 +31,6 @@ func StartServer() {
 
 	AuthController(router, db)
 	CustomerController(router, db)
+	ProductController(router, db)
 	router.Run()
 }
