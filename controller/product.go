@@ -22,7 +22,7 @@ func ProductController(route *gin.Engine, db *gorm.DB) {
 
 func searchProduct(c *gin.Context) {
 	s_product := dto.SearchProduct{}
-	c.BindJSON(&s_product)
+	c.ShouldBindJSON(&s_product)
 	products := []model.Product{}
 	if s_product.Pricemin == "" {
 		s_product.Pricemin = "0"
