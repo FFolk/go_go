@@ -29,6 +29,7 @@ func StartServer() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
-	LandmarkController(router, db)
+	AuthController(router, db)
+	CustomerController(router, db)
 	router.Run()
 }
